@@ -18,6 +18,15 @@ jobs:
         with:
           pdk: sky130A
 
+      - name: Upload build results
+  uses: actions/upload-artifact@v4
+  with:
+    name: gds-results
+    path: |
+      tt_submission/**
+      runs/**
+    if-no-files-found: warn
+
   precheck:
     needs: gds
     runs-on: ubuntu-24.04
@@ -41,7 +50,7 @@ jobs:
     needs: gds
     runs-on: ubuntu-24.04
     permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
     steps:
       - uses: TinyTapeout/tt-gds-action/viewer@ttsky26c

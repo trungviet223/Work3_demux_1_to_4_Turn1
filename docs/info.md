@@ -1,42 +1,60 @@
-## How it works
+yaml_version: 6
 
-This project implements a 1-to-4 demultiplexer (demux) using only NAND2 and
-INV (inverter) primitives, without relying on any pre-built 1:2 demux blocks.
+project:
+title: "1:4 Demultiplexer built from NAND2 and INV gates"
+author: "Ten cua ban"
+discord: ""
+description: "1 to 4 demultiplexer implemented purely with NAND2 and INV primitives (no built-in 1:2 demux blocks used)."
+language: "Verilog"
+clock_hz: 0
 
-The design uses 3 inputs (D, S1, S0) and produces 4 outputs (Y0..Y3), where
-exactly one output equals D and the other three are forced to 0, based on
-the 2-bit select code {S1, S0}:
+# How many tiles your design occupies? A single tile is about 167x108 uM.
 
-| S1  | S0  | Active output |
-| --- | --- | ------------- |
-| 0   | 0   | Y0 = D        |
-| 0   | 1   | Y1 = D        |
-| 1   | 0   | Y2 = D        |
-| 1   | 1   | Y3 = D        |
+tiles: "1x1"
 
-Internally, each AND function needed for the demux logic is built from a
-NAND2 gate followed by an INV gate (since AND(A,B) = INV(NAND(A,B))). Two
-intermediate signals, p = D & ~S1 and q = D & S1, are computed once and
-reused for two outputs each (p feeds Y0/Y1, q feeds Y2/Y3), reducing the
-total gate count compared to computing each branch independently.
+# Your top module name must start with "tt*um*". Make it unique by including your github username:
 
-## How to test
+top_module: "tt_um_demux1to4"
 
-The design is purely combinational (no clock is used). To test it:
+# List your project's Verilog source files here.
 
-1. Set `ui_in[0]` = D, `ui_in[1]` = S0, `ui_in[2]` = S1.
-2. Wait a few nanoseconds for the combinational logic to settle.
-3. Read `uo_out[0]` = Y0, `uo_out[1]` = Y1, `uo_out[2]` = Y2, `uo_out[3]` = Y3.
-4. Verify that exactly one of Y0..Y3 equals D (matching the {S1,S0} select
-   code above) and the remaining three outputs are 0.
+source_files: - "demux1to4.v" - "project.v"
 
-The included cocotb testbench (`test/test.py`) automatically sweeps all 8
-combinations of D, S1, and S0, and additionally checks that all outputs
-stay at 0 whenever D = 0, regardless of the select value.
+# The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 
-## External hardware
+# NOTE: pinout must be a TOP-LEVEL key (sibling of "project"), not nested inside it.
 
-No external hardware is required. All inputs and outputs can be driven and
-observed directly through the standard TinyTapeout ui_in/uo_out pins (e.g.
-using switches/LEDs on a TinyTapeout demo board, or via the on-chip test
-harness).
+pinout:
+
+# Inputs
+
+ui[0]: "D - data input"
+ui[1]: "S0 - select bit 0"
+ui[2]: "S1 - select bit 1"
+ui[3]: ""
+ui[4]: ""
+ui[5]: ""
+ui[6]: ""
+ui[7]: ""
+
+# Outputs
+
+uo[0]: "Y0"
+uo[1]: "Y1"
+uo[2]: "Y2"
+uo[3]: "Y3"
+uo[4]: ""
+uo[5]: ""
+uo[6]: ""
+uo[7]: ""
+
+# Bidirectional pins
+
+uio[0]: ""
+uio[1]: ""
+uio[2]: ""
+uio[3]: ""
+uio[4]: ""
+uio[5]: ""
+uio[6]: ""
+uio[7]: ""

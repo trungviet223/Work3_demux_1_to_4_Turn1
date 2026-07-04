@@ -1,27 +1,37 @@
-HUONG DAN CHINH SUA test/Makefile CO SAN TRONG TEMPLATE
-========================================================
+# Makefile cho cocotb + Icarus Verilog
+# LUU Y: file nay KHONG chua bat ky dong lenh (recipe) nao can TAB,
+# de tranh loi "missing separator" du ban sua qua GitHub web editor
+# hay bat ky trinh soan thao nao khac vo tinh chuyen tab thanh space.
 
-Template ttsky-verilog-template da co san file test/Makefile.
-Ban CHI can tim dong khai bao PROJECT_SOURCES va them "demux1to4.v" vao,
-vi day la file .v thu hai trong thu muc src/ ma project.v goi toi.
+ifndef PDK_ROOT
+PDK_ROOT := $(shell python3 -c "import volare;print(volare.get_volare_home())")/sky130
+endif
 
-Truoc khi sua, dong do thuong co dang gan giong:
+ifneq ($(GATES),yes)
+$(info Running RTL simulation)
+SIM_BUILD := sim_build/rtl
+VERILOG_SOURCES += $(PWD)/tb.v
+VERILOG_SOURCES += $(PWD)/../src/demux1to4.v
+VERILOG_SOURCES += $(PWD)/../src/project.v
+COMPILE_ARGS    += -DSIM
+COMPILE_ARGS    += -DFUNCTIONAL
+else
+$(info Running Gate Level simulation)
+SIM_BUILD := sim_build/gl
+COMPILE_ARGS    += -DGL_TEST
+COMPILE_ARGS    += -DFUNCTIONAL
+COMPILE_ARGS    += -DUSE_POWER_PINS
+COMPILE_ARGS    += -DSIM
+COMPILE_ARGS    += -DUNIT_DELAY=\#1
+VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
+VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
+VERILOG_SOURCES += $(PWD)/tb.v
+VERILOG_SOURCES += $(PWD)/../runs/wokwi/results/final/verilog/gl/project.v
+endif
 
-    PROJECT_SOURCES = project.v
+TOPLEVEL := tb
+MODULE := test
+SIM ?= icarus
+TOPLEVEL_LANG ?= verilog
 
-Sua thanh:
-
-    PROJECT_SOURCES = project.v demux1to4.v
-
-Neu Makefile dang liet ke source theo kieu khac (vi du doc truc tiep
-tu info.yaml qua bien SIM_BUILD/VERILOG_SOURCES), ban khong can dong
-gi them o day, vi buoc build da tu dong doc source_files trong
-info.yaml (xem file info.yaml.snippet.txt).
-
-Sau khi sua xong, chay thu local (neu da cai cocotb + icarus verilog):
-
-    cd test
-    make
-
-Ket qua mong doi: tat ca 2 test (test_demux1to4_exhaustive va
-test_demux1to4_zero_when_d_low) deu PASS.
+include $(shell cocotb-config --makefiles)/Makefile.sim

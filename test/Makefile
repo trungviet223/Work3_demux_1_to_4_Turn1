@@ -1,45 +1,27 @@
-# Makefile
-# See https://docs.cocotb.org/en/stable/quickstart.html for more info
+HUONG DAN CHINH SUA test/Makefile CO SAN TRONG TEMPLATE
+========================================================
 
-# defaults
-SIM ?= icarus
-FST ?= -fst # Use more efficient FST format
-TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
+Template ttsky-verilog-template da co san file test/Makefile.
+Ban CHI can tim dong khai bao PROJECT_SOURCES va them "demux1to4.v" vao,
+vi day la file .v thu hai trong thu muc src/ ma project.v goi toi.
 
-ifneq ($(GATES),yes)
+Truoc khi sua, dong do thuong co dang gan giong:
 
-# RTL simulation:
-SIM_BUILD				= sim_build/rtl
-VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
+    PROJECT_SOURCES = project.v
 
-else
+Sua thanh:
 
-# Gate level simulation:
-SIM_BUILD				= sim_build/gl
-COMPILE_ARGS    += -DGL_TEST
-COMPILE_ARGS    += -DFUNCTIONAL
-COMPILE_ARGS    += -DUSE_POWER_PINS
-COMPILE_ARGS    += -DSIM
-COMPILE_ARGS    += -DUNIT_DELAY=\#1
-VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
-VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
+    PROJECT_SOURCES = project.v demux1to4.v
 
-# this gets copied in by the GDS action workflow
-VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
+Neu Makefile dang liet ke source theo kieu khac (vi du doc truc tiep
+tu info.yaml qua bien SIM_BUILD/VERILOG_SOURCES), ban khong can dong
+gi them o day, vi buoc build da tu dong doc source_files trong
+info.yaml (xem file info.yaml.snippet.txt).
 
-endif
+Sau khi sua xong, chay thu local (neu da cai cocotb + icarus verilog):
 
-# Allow sharing configuration between design and testbench via `include`:
-COMPILE_ARGS 		+= -I$(SRC_DIR)
+    cd test
+    make
 
-# Include the testbench sources:
-VERILOG_SOURCES += $(PWD)/tb.v
-TOPLEVEL = tb
-
-# List test modules to run, separated by commas and without the .py suffix:
-COCOTB_TEST_MODULES = test
-
-# include cocotb's make rules to take care of the simulator setup
-include $(shell cocotb-config --makefiles)/Makefile.sim
+Ket qua mong doi: tat ca 2 test (test_demux1to4_exhaustive va
+test_demux1to4_zero_when_d_low) deu PASS.

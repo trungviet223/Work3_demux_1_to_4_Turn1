@@ -1,27 +1,34 @@
-/*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
- */
-
-`default_nettype none
-
-module tt_um_example (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+module demux1to4 (
+    input  wire D,
+    input  wire S1,
+    input  wire S0,
+    output wire Y0,
+    output wire Y1,
+    output wire Y2,
+    output wire Y3
 );
+  wire nS1, nS0;
+  not (nS1, S1);
+  not (nS0, S0);
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  // Tang 1: chi tinh 1 lan cho moi to hop D&S1 / D&nS1
+  // p = D & nS1  (dung chung cho Y0, Y1)
+  // q = D & S1   (dung chung cho Y2, Y3)
+  wire p_n, p;
+  wire q_n, q;
+  nand (p_n, D, nS1);
+  not (p, p_n);
+  nand (q_n, D, S1);
+  not (q, q_n);
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
-
+  // Tang 2: phan phoi p, q theo S0
+  wire y0_n, y1_n, y2_n, y3_n;
+  nand (y0_n, p, nS0);
+  not (Y0, y0_n);
+  nand (y1_n, p, S0);
+  not (Y1, y1_n);
+  nand (y2_n, q, nS0);
+  not (Y2, y2_n);
+  nand (y3_n, q, S0);
+  not (Y3, y3_n);
 endmodule

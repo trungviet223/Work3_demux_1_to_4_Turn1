@@ -1,34 +1,35 @@
-module demux1to4 (
-    input  wire D,
-    input  wire S1,
-    input  wire S0,
-    output wire Y0,
-    output wire Y1,
-    output wire Y2,
-    output wire Y3
+`default_nettype none
+
+module tt_um_demux1to4 (
+    input  wire [7:0] ui_in,
+    output wire [7:0] uo_out,
+    input  wire [7:0] uio_in,
+    output wire [7:0] uio_out,
+    output wire [7:0] uio_oe,
+    input  wire       ena,
+    input  wire       clk,
+    input  wire       rst_n
 );
-  wire nS1, nS0;
-  not (nS1, S1);
-  not (nS0, S0);
 
-  // Tang 1: chi tinh 1 lan cho moi to hop D&S1 / D&nS1
-  // p = D & nS1  (dung chung cho Y0, Y1)
-  // q = D & S1   (dung chung cho Y2, Y3)
-  wire p_n, p;
-  wire q_n, q;
-  nand (p_n, D, nS1);
-  not (p, p_n);
-  nand (q_n, D, S1);
-  not (q, q_n);
+    wire Y0, Y1, Y2, Y3;
 
-  // Tang 2: phan phoi p, q theo S0
-  wire y0_n, y1_n, y2_n, y3_n;
-  nand (y0_n, p, nS0);
-  not (Y0, y0_n);
-  nand (y1_n, p, S0);
-  not (Y1, y1_n);
-  nand (y2_n, q, nS0);
-  not (Y2, y2_n);
-  nand (y3_n, q, S0);
-  not (Y3, y3_n);
+    demux1to4 dut (
+        .D (ui_in[0]),
+        .S0(ui_in[1]),
+        .S1(ui_in[2]),
+        .Y0(Y0),
+        .Y1(Y1),
+        .Y2(Y2),
+        .Y3(Y3)
+    );
+
+    assign uo_out = {4'b0000, Y3, Y2, Y1, Y0};
+
+    assign uio_out = 8'b0;
+    assign uio_oe  = 8'b0;
+
+    wire _unused = &{ena, clk, rst_n, uio_in};
+
 endmodule
+
+`default_nettype wire

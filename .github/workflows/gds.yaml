@@ -18,14 +18,28 @@ jobs:
         with:
           pdk: sky130A
 
-      - name: Upload build results
-        uses: actions/upload-artifact@v4
-        with:
-          name: gds-results
-          path: |
-            tt_submission/**
-            runs/**
-          if-no-files-found: warn
+      - name: Find generated files
+        run: |
+          echo "===== Current directory ====="
+          pwd
+
+          echo "===== tt_submission ====="
+          find tt_submission -type f 2>/dev/null || true
+
+          echo "===== runs ====="
+          find runs -type f 2>/dev/null || true
+
+          echo "===== Search GDS ====="
+          find . -name "*.gds" 2>/dev/null || true
+
+          echo "===== Search LEF ====="
+          find . -name "*.lef" 2>/dev/null || true
+
+          echo "===== Search DEF ====="
+          find . -name "*.def" 2>/dev/null || true
+
+          echo "===== Search Verilog ====="
+          find . -name "*.v" 2>/dev/null || true
 
   precheck:
     needs: gds
@@ -50,7 +64,7 @@ jobs:
     needs: gds
     runs-on: ubuntu-24.04
     permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
+      pages: write
+      id-token: write
     steps:
       - uses: TinyTapeout/tt-gds-action/viewer@ttsky26c

@@ -19,13 +19,13 @@ jobs:
           pdk: sky130A
 
       - name: Upload build results
-  uses: actions/upload-artifact@v4
-  with:
-    name: gds-results
-    path: |
-      tt_submission/**
-      runs/**
-    if-no-files-found: warn
+        uses: actions/upload-artifact@v4
+        with:
+          name: gds-results
+          path: |
+            tt_submission/**
+            runs/**
+          if-no-files-found: warn
 
   precheck:
     needs: gds
